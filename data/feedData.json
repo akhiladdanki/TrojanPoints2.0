@@ -1,0 +1,43 @@
+{ 
+    "getData" :[{
+    "id": "1",
+    "toEmail": "Monte@gmail.com",
+    "fromEmail": "JohnDoe@gmail.com",
+    "pointValue": "4",
+    "postedDate": "10-04-2023",
+    "description": "You are such an incredible problem-solver. You've got such an amazing work ethic."
+  },
+  {
+    "id": "2",
+    "toEmail": "Taylor@gmail.com",
+    "fromEmail": "JohnDoe@gmail.com",
+    "pointValue": "3",
+    "postedDate": "11-04-2023",
+    "description": "I'm so impressed by how you communicate."
+  },
+  {
+    "id": "3",
+    "toEmail": "Akhil@gmail.com",
+    "fromEmail": "JohnDoe@gmail.com",
+    "pointValue": "3",
+    "postedDate": "12-04-2023",
+    "description": "I'm so impressed with how you handled that meeting today. I always admire how clearly you present your work."
+  },
+  {
+    "id": "4",
+    "toEmail": "Akhil@gmail.com",
+    "fromEmail": "JohnDoe@gmail.com",
+    "pointValue": "5",
+    "postedDate": "10-22-2023",
+    "description": "I can't get over how great your presentation was. I need to pick your brain the next time I have to give one!" 
+
+  },
+  {
+    "id": "5",
+    "toEmail": "Akhil@gmail.com",
+    "fromEmail": "JohnDoe@gmail.com",
+    "pointValue": "4",
+    "postedDate": "10-04-2023",
+    "description": "You bring so much to this team, especially with presentations"
+  }]
+}
