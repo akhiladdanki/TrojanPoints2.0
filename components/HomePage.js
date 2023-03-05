@@ -101,7 +101,6 @@ const HomePage = () => {
         isChecked9:false,
         isChecked10:false
     })
-    console.log(searchQuery, "Search Here")
     return (
 
 

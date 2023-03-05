@@ -1,4 +1,4 @@
-import { StatusBar } from 'expo-status-bar';
+
 import { ScrollView, StyleSheet, Text, View, Image} from 'react-native';
 //import { createDrawerNavigator } from '@react-navigation/drawer';
 import { NavigationContainer } from '@react-navigation/native';
@@ -19,8 +19,10 @@ const headerSubInfo = "Reward a colleague for going above and beyond"
   return (
     <NavigationContainer>
       <Drawer.Navigator  drawerContent={(props)=><CustomDrawer {...props} />} >
-        {/* <Drawer.Screen name="Award Trojan Points" component={HomePage}/> */}
-        <Drawer.Screen name="Trojan Points Feed" component={Feed}/>
+        <Drawer.Screen name="Trojan Points Feed" component={Feed} />
+        <Drawer.Screen name="Award Trojan Points" component={HomePage} options={{
+          drawerItemStyle: { height: 0 }
+  }}/>
         <Drawer.Screen name="My Profile" component={ProfilePage}/>
         <Drawer.Screen name="Contact Us" component={Setup}/>
         <Drawer.Screen name="Instructions" component={Instructions}/>
