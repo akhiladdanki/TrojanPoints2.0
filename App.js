@@ -19,7 +19,7 @@ const headerSubInfo = "Reward a colleague for going above and beyond"
   return (
     <NavigationContainer>
       <Drawer.Navigator  drawerContent={(props)=><CustomDrawer {...props} />} >
-        <Drawer.Screen name="Award Trojan Points" component={HomePage}/>
+        {/* <Drawer.Screen name="Award Trojan Points" component={HomePage}/> */}
         <Drawer.Screen name="Trojan Points Feed" component={Feed}/>
         <Drawer.Screen name="My Profile" component={ProfilePage}/>
         <Drawer.Screen name="Contact Us" component={Setup}/>

@@ -1,17 +1,40 @@
 import React, { useState } from 'react';
-import { View, Text, ScrollView, StyleSheet, TextInput } from 'react-native';
+import { View, Text, ScrollView, StyleSheet, TextInput, Button,Image } from 'react-native';
 import { TouchableOpacity } from 'react-native-gesture-handler';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import featureData from '../data/feedData.json';
+import { useNavigation } from '@react-navigation/native';
 // import Like from 'react-native-vector-icons/like1';
 const Feed = () => {
+  const navigation=useNavigation();
   const [feedData, setFeedData] = useState(featureData)
 
 
   console.log(feedData, "getData")
   return (
-    <View>
+    <SafeAreaView style={styles.container}>
+  
+     
+      <View style = {{position:'absolute',borderWidth:1,bottom:0,alignSelf:'flex-end',zIndex:100,justifyContent:'center'}}>
+      <TouchableOpacity
+          activeOpacity={0.7}
+          onPress={()=>{navigation.navigate("Award Trojan Points")}
+        }
+          style={styles.touchableOpacityStyle}>
+          <Image
+            // FAB using TouchableOpacity with an image
+            // For online image
+            source={require("../assets/plus.png")
+              
+            }
+            style={styles.floatingButtonStyle}
+          />
+        </TouchableOpacity>
+                </View>
+                
       <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
+     
         <View style={styles.header}>
           <Text style={styles.textHeader}>Trojan Points Feed</Text>
         </View>
@@ -38,6 +61,7 @@ const Feed = () => {
                     </View>
                     <View >
                       <Text style = {styles.feedText}>
+
                         {feed.description}
                       </Text>
                       </View>
@@ -63,13 +87,31 @@ const Feed = () => {
           })}
         </View>
       </ScrollView>
-    </View>
+    
+    </SafeAreaView>
   );
 }
 
 export default Feed;
 
 const styles = StyleSheet.create({
+  container:{
+flex:1,
+
+  },
+  iconPhoneAwesome:{
+      position:'absolute',
+      width:50
+  },
+  touchableOpacityStyle:{
+    position: 'absolute',
+    width: 50,
+    height: 50,
+    alignItems: 'center',
+    justifyContent: 'center',
+    right: 30,
+    bottom: 30,
+  },
   header: {
     // backgroundColor: "#FFCC00",
     display: "flex",
@@ -116,5 +158,10 @@ const styles = StyleSheet.create({
     justifyContent:'space-around',
     marginLeft: "68%",
     marginBottom: 10
+  },
+  floatingButtonStyle:{
+    resizeMode: 'contain',
+    width: 50,
+    height: 50
   }
 })
