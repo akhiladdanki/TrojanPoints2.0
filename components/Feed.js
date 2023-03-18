@@ -1,11 +1,9 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   View,
   Text,
   ScrollView,
   StyleSheet,
-  TextInput,
-  Button,
   Image,
 } from "react-native";
 import { TouchableOpacity } from "react-native-gesture-handler";
@@ -13,10 +11,21 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import FontAwesome from "react-native-vector-icons/FontAwesome";
 import featureData from "../data/feedData.json";
 import { useNavigation } from "@react-navigation/native";
-// import Like from 'react-native-vector-icons/like1';
+import { ref, set,onValue } from "firebase/database";
+import { db } from "../firebase/index";
+
 const Feed = () => {
   const navigation = useNavigation();
   const [feedData, setFeedData] = useState(featureData);
+  const [feedInfo,setFeedInfo]=useState();
+  console.log(feedInfo,"feed lock")
+  useEffect(()=>{
+    const starCountRef = ref(db, 'userlist/');
+    onValue(starCountRef, (snapshot) => {
+      const data = snapshot.val();
+      setFeedInfo(data);
+    });
+   },[])
 
   return (
     <SafeAreaView style={styles.container}>
@@ -36,7 +45,7 @@ const Feed = () => {
           style={styles.touchableOpacityStyle}
         >
           <Image
-            source={require("../assets/plusgrow.png")}
+            source={require("../assets/plus.png")}
             style={styles.floatingButtonStyle}
           />
         </TouchableOpacity>
@@ -87,6 +96,7 @@ const Feed = () => {
                     </View>
                     <View style={styles.socialSection}>
                       <TouchableOpacity>
+                        <Text>1</Text>
                         <FontAwesome
                           name="thumbs-up"
                           style={styles.iconPhoneAwesome}
