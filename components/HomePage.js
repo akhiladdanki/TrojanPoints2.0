@@ -8,14 +8,20 @@ import {
   ScrollView,
   ScrollViewBase,
   Keyboard,
+  TouchableOpacity,
 } from "react-native";
-import { FlatList, TextInput, TouchableWithoutFeedback } from "react-native-gesture-handler";
+import {
+  FlatList,
+  TextInput,
+  TouchableWithoutFeedback,
+} from "react-native-gesture-handler";
 import FontAwesome from "react-native-vector-icons/FontAwesome";
 import userData from "../data/userData.json";
 import Checkbox from "expo-checkbox";
 import { AirbnbRating, Button } from "@rneui/themed";
-import { Avatar } from '@rneui/themed';
-
+import { Avatar } from "@rneui/themed";
+import { ref, set } from "firebase/database";
+import { db } from "../firebase/index";
 const styles = StyleSheet.create({
   mainContainer: {
     flex: 1,
@@ -39,7 +45,7 @@ const styles = StyleSheet.create({
     padding: 20,
   },
   textDescription: {
-    textAlign:"center",
+    textAlign: "center",
     lineHeight: 30,
     fontSize: 14,
   },
@@ -92,8 +98,10 @@ const styles = StyleSheet.create({
 
 const HomePage = () => {
   const [searchQuery, setSearchQuery] = useState(userData);
-  const [filterData,setFilterData]=useState([])
-  const [mainData,setMainData]=useState([])
+  const [filterData, setFilterData] = useState([]);
+  const [mainData, setMainData] = useState([]);
+  const [rating, setRating] = useState(0);
+  const [comments, setComments] = useState("");
   const [isChecked, setIsChecked] = useState({
     isChecked1: false,
     isChecked2: false,
@@ -106,66 +114,92 @@ const HomePage = () => {
     isChecked9: false,
     isChecked10: false,
   });
-  useEffect(()=>{
-    if(searchQuery){
+  const handleSubmit = () => {
+    set(ref(db, "userlist/" + searchQuery), {
+      searchQuery: searchQuery,
+      rating: rating,
+      comments: comments,
+    })
+      .then(() => {
+        alert("Data Created");
+      })
+      .catch((err) => {
+        console.error("Something Went Wrong");
+      });
+    setSearchQuery([]);
+    setRating(0);
+  };
+  useEffect(() => {
+    if (searchQuery) {
       handleFilter();
     }
-    return(()=>{
+    return () => {
       //demounted when not required
-    })
-  },[])
-  const handleFilter=async()=>{
-    const apiUrl= 'https://jsonplaceholder.typicode.com/users';
-    const fetcher=await fetch(apiUrl)
-     const jsondata= await fetcher.json();
-       setFilterData(jsondata);
-        setMainData(jsondata);
-  }
-  const changeText=(text)=>{
-    if(text){
-      const newData=mainData.filter((item)=>{
-        const itemData=item.name ? item.name.toUpperCase() : ''.toUpperCase();
-        const textData=text.toUpperCase();
-        return itemData.indexOf(textData)>-1;
-      })
+    };
+  }, []);
+  const handleFilter = async () => {
+    const apiUrl = "https://jsonplaceholder.typicode.com/users";
+    const fetcher = await fetch(apiUrl);
+    const jsondata = await fetcher.json();
+    setFilterData(jsondata);
+    setMainData(jsondata);
+  };
+  const changeText = (text, e) => {
+    if (text) {
+      const newData = mainData.filter((item) => {
+        const itemData = item.name ? item.name.toUpperCase() : "".toUpperCase();
+        const textData = text.toUpperCase();
+        return itemData.indexOf(textData) > -1;
+      });
       setFilterData(newData);
       setSearchQuery(text);
-    }
-    else{
+    } else {
       setFilterData(mainData);
       setSearchQuery(text);
     }
-
-  }
-  const Itemview=({item})=>{
-    return(
-      <View style={{display:"flex",flexDirection:"row",alignSelf:"flex-start",marginLeft:15,alignItems:"center"}}>
-        <View style={{padding:10}}>
+  };
+  const handleSelection = (item) => {
+    const newId = item.id;
+    if (newId === item.id) {
+      setSearchQuery(item.name);
+    }
+    setFilterData([]);
+  };
+  const Itemview = ({ item }) => {
+    return (
+      <TouchableOpacity
+        style={{
+          display: "flex",
+          flexDirection: "row",
+          alignSelf: "flex-start",
+          marginLeft: 15,
+          alignItems: "center",
+        }}
+        onPress={() => handleSelection(item)}
+      >
+        <View style={{ padding: 10 }}>
           <Avatar
-           size={32}
-           rounded
-           title={item.name.slice(0,1)}
-           containerStyle={{ backgroundColor: "blue" }}
+            size={32}
+            rounded
+            title={item.name.slice(0, 1)}
+            containerStyle={{ backgroundColor: "blue" }}
           />
         </View>
         <View>
-        <Text >
-        {item.name.toUpperCase()}
-      </Text>
-        <Text>
-        {item.email.toUpperCase()}
-      </Text>
+          <Text>{item.name.toUpperCase()}</Text>
+          <Text>{item.email.toUpperCase()}</Text>
         </View>
-      </View>
-    )
-  }
-  const ItemSeparatorView=()=>{
-    return(
-      <View style={{height:0.5,width:'100%',backgroundColor:"#c8c8c8"}}/>
-    )
-  }
+      </TouchableOpacity>
+    );
+  };
+  const ItemSeparatorView = () => {
+    return (
+      <View
+        style={{ height: 0.5, width: "100%", backgroundColor: "#c8c8c8" }}
+      />
+    );
+  };
   return (
-    // <TouchableWithoutFeedback onPress={Keyboard.dismiss()}>
     <SafeAreaView style={styles.mainContainer}>
       <ScrollView style={styles.container}>
         <View style={styles.header}>
@@ -180,22 +214,28 @@ const HomePage = () => {
           </Text>
         </View>
         <TextInput
-          style={{ fontSize: 18,marginHorizontal:12,borderWidth:1,height:40,paddingHorizontal:12,borderRadius:5 }}
+          style={{
+            fontSize: 18,
+            marginHorizontal: 12,
+            borderWidth: 1,
+            height: 40,
+            paddingHorizontal: 12,
+            borderRadius: 5,
+          }}
           placeholder="Enter Peer's Med Email "
           value={searchQuery}
           underlineColorAndroid="transparent"
-          onChangeText={(text)=>changeText(text)}
-          
+          onChangeText={(text) => changeText(text)}
+        />
+        {searchQuery.length > 0 ? (
+          <FlatList
+            data={filterData}
+            keyExtractor={(item, index) => index.toString()}
+            ItemSeparatorComponent={ItemSeparatorView}
+            renderItem={Itemview}
           />
-          {searchQuery.length>2 ?(
-            <FlatList
-              data={filterData}
-              keyExtractor={(item,index)=>index.toString()}
-              ItemSeparatorComponent={ItemSeparatorView}
-              renderItem={Itemview}          
-            />
-          ):null}
-       
+        ) : null}
+
         <View style={styles.mainCheckbox}>
           <View style={styles.checkbox}>
             <Checkbox
@@ -351,7 +391,13 @@ const HomePage = () => {
             <View style={{ marginTop: 20 }}>
               <Text style={styles.textCheckbox}>Trojan Points to Award:</Text>
             </View>
-            <AirbnbRating count={5} size={40} reviews={[]} />
+            <AirbnbRating
+              defaultRating={rating}
+              count={5}
+              size={50}
+              reviews={[]}
+              onFinishRating={(num) => setRating(num)}
+            />
           </View>
           <View>
             <View>
@@ -361,7 +407,7 @@ const HomePage = () => {
               <View
                 style={{
                   borderWidth: 1,
-                  marginTop: 6,
+                  marginTop: 2,
                   width: "96%",
                   height: 100,
                   borderRadius: 15,
@@ -372,7 +418,9 @@ const HomePage = () => {
                   multiline
                   maxLength={500}
                   numberOfLines={5}
-                  style={{ padding: 10, top: 10, fontSize: 14 }}
+                  value={comments}
+                  onChangeText={(text) => setComments(text)}
+                  style={{ padding: 10, top: 50, fontSize: 14, marginTop: -80 }}
                 />
               </View>
             </View>
@@ -386,6 +434,7 @@ const HomePage = () => {
                 marginVertical: 20,
                 borderRadius: 10,
               }}
+              onPress={handleSubmit}
               buttonStyle={{ backgroundColor: "#990000" }}
             />
           </View>
