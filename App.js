@@ -21,20 +21,23 @@ const Drawer = createDrawerNavigator();
 export default function App() {
   return (
     <NavigationContainer>
-      {/* <AuthProvider> */}
+     
       <Drawer.Navigator  drawerContent={(props)=><CustomDrawer {...props} />} >
-      <Drawer.Screen name="Login Page" component={LoginPage} options={{headerShown:false}}/>
+      <Drawer.Screen name="Login Page" component={LoginPage} options={{headerShown:false, drawerItemStyle: {height: 0}}}/>
         <Drawer.Screen name="Trojan Points Feed" component={Feed} />
         <Drawer.Screen name="Register" component={SignUp} />
-        <Drawer.Screen name="Award Trojan Points" component={HomePage} options={{
-          // drawerItemStyle: { height: 0 }
-  }}/>
-        <Drawer.Screen name="My Profile" component={ProfilePage}/>
+        
         <Drawer.Screen name="Contact Us" component={Setup}/>
         <Drawer.Screen name="Instructions" component={Instructions}/>
         <Drawer.Screen name="Shop" component={Shop}/>
+        <Drawer.Screen name="Award Trojan Points" component={HomePage} options={{
+           drawerItemStyle: { height: 0 }
+  }}/>
+        <Drawer.Screen name="My Profile" component={ProfilePage} options={{
+           drawerItemStyle: { height: 0 }
+  }}/>
       </Drawer.Navigator>
-    {/* </AuthProvider> */}
+   
     </NavigationContainer>
   );
 }

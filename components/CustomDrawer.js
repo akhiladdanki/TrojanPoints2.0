@@ -1,8 +1,11 @@
 import React from 'react';
 import { View, Text,Image,StyleSheet } from 'react-native';
 import { createDrawerNavigator,DrawerContentScrollView,DrawerItemList } from '@react-navigation/drawer';
+import { TouchableOpacity } from 'react-native-gesture-handler';
+import { useNavigation } from "@react-navigation/native";
 
 const CustomDrawer = (props) => {
+  const navigation = useNavigation();
   return (
     <DrawerContentScrollView {...props}>
     <View style = {styles.mainSideBar}>
@@ -14,7 +17,11 @@ const CustomDrawer = (props) => {
           Akhil@gmail.com
         </Text>
       </View>
+      <TouchableOpacity onPress={() => {
+            navigation.navigate("My Profile");
+          }}>
       <Image source = {require("../assets/keck-logo.png")} resizeMode = "contain" style = {styles.SideBarImage}/>
+      </TouchableOpacity>
       </View>
     <DrawerItemList {...props}/>
    </DrawerContentScrollView>

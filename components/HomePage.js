@@ -115,6 +115,15 @@ const HomePage = () => {
     isChecked10: false,
   });
   const handleSubmit = () => {
+    if(!searchQuery){
+        return;
+    }
+    if(!comments){
+        return;
+    }
+    if(!rating){
+        return;
+    }
     set(ref(db, "userlist/" + searchQuery), {
       searchQuery: searchQuery,
       rating: rating,
