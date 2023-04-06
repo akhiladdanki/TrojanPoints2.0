@@ -4,29 +4,85 @@ import {
   Text,
   ScrollView,
   StyleSheet,
+  RefreshControl,
   Image,
 } from "react-native";
 import { TouchableOpacity } from "react-native-gesture-handler";
 import { SafeAreaView } from "react-native-safe-area-context";
 import FontAwesome from "react-native-vector-icons/FontAwesome";
-import featureData from "../data/feedData.json";
 import { useNavigation } from "@react-navigation/native";
-import { ref, set,onValue } from "firebase/database";
-import { db } from "../firebase/index";
+import { db, collection, getDocs, updateDoc, doc } from "../firebase/index";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
+let userId = "";
 const Feed = () => {
   const navigation = useNavigation();
-  const [feedData, setFeedData] = useState(featureData);
-  const [feedInfo,setFeedInfo]=useState();
-  console.log(feedInfo,"feed lock")
-  useEffect(()=>{
-    const starCountRef = ref(db, 'userlist/');
-    onValue(starCountRef, (snapshot) => {
-      const data = snapshot.val();
-      setFeedInfo(data);
+  const [feedInfo, setFeedInfo] = useState([]);
+  const [docId, setDocId] = useState();
+  const [likedPost, setIsLikedPost] = useState(false);
+  const [refreshing, setRefreshing] = React.useState(false);
+  useEffect(() => {
+    getData();
+  }, [refreshing, likedPost]);
+  useEffect(() => {
+    getDataAsyn();
+  }, []);
+  const getDataAsyn = async () => {
+    try {
+      userId = await AsyncStorage.getItem("userId");
+    } catch (err) {
+      console.log(err);
+    }
+  };
+  const onRefresh = React.useCallback(() => {
+    setRefreshing(true);
+    setTimeout(() => {
+      setRefreshing(false);
+    }, 2000);
+  }, []);
+  const getData = async () => {
+    let records = [];
+    const querySnapshot = await getDocs(collection(db, "posts"));
+    querySnapshot.forEach((doc) => {
+      records.push({ key: doc.id, data: doc.data() });
+      setDocId(doc.id);
     });
-   },[])
+    setFeedInfo(records);
+  };
 
+  const getLikeStatus = (likes) => {
+    let status = false;
+    likes.map((item) => {
+      if (item === userId) {
+        status = true;
+      } else {
+        status = false;
+      }
+    });
+    return status;
+  };
+  const onLike = async (item, indd) => {
+    let tempLikes = item.likes;
+    if (tempLikes.length > 0) {
+      tempLikes.map((val) => {
+        if (val === userId) {
+          const index = tempLikes.indexOf(val);
+          if (index > -1) {
+            tempLikes.splice(index, 1);
+          }
+        } else {
+          tempLikes[indd].push(userId);
+        }
+      });
+    } else {
+      tempLikes.push(userId);
+    }
+    const postRef = doc(db, "posts", docId);
+    await updateDoc(postRef, {
+      likes: tempLikes,
+    });
+    setIsLikedPost((prev) => !prev);
+  };
   return (
     <SafeAreaView style={styles.container}>
       <View
@@ -51,7 +107,12 @@ const Feed = () => {
         </TouchableOpacity>
       </View>
 
-      <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
+      <ScrollView
+        contentContainerStyle={{ flexGrow: 1 }}
+        refreshControl={
+          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+        }
+      >
         <View style={styles.header}>
           <Text style={styles.textHeader}>Trojan Points Feed</Text>
         </View>
@@ -65,7 +126,7 @@ const Feed = () => {
           </Text>
         </View>
         <View>
-          {feedData.getData.map((feed, index) => {
+          {feedInfo.map((item, index) => {
             return (
               <View key={index}>
                 <View
@@ -82,27 +143,61 @@ const Feed = () => {
                   <View style={{ marginLeft: 10, marginTop: 10 }}>
                     <View>
                       <Text style={styles.feedText}>
-                        To {feed.toEmail}-{feed.pointValue} Points
+                        To {item.data.searchQuery}-{item.data.rating} Points
                       </Text>
                     </View>
                     <View>
-                      <Text style={styles.feedText}>{feed.description}</Text>
+                      <Text style={styles.feedText}>{item.data.comments}</Text>
                     </View>
                     <View>
-                      <Text style={styles.feedText}>From {feed.fromEmail}</Text>
+                      <Text style={styles.feedText}>
+                        From {item.data.searchQuery}
+                      </Text>
                     </View>
                     <View style={{ marginTop: 10 }}>
-                      <Text>{feed.postedDate}</Text>
+                      <Text>{item.data.createdAt}</Text>
                     </View>
                     <View style={styles.socialSection}>
-                      <TouchableOpacity>
-                        <Text>1</Text>
-                        <FontAwesome
-                          name="thumbs-up"
-                          style={styles.iconPhoneAwesome}
-                        />
+                      <TouchableOpacity
+                        onPress={() => onLike(item.data, index)}
+                      >
+                        <View
+                          style={{
+                            display: "flex",
+                            flexDirection: "row",
+                            alignItems: "baseline",
+                            justifyContent: "space-evenly",
+                          }}
+                        >
+                          <View style={{ marginRight: 10 }}>
+                            <Text>{item.data.likes.length}</Text>
+                          </View>
+                          <View>
+                            {getLikeStatus(item.data.likes) ? (
+                              <FontAwesome
+                                name="thumbs-up"
+                                color="red"
+                                style={styles.iconPhoneAwesome}
+                              />
+                            ) : (
+                              <FontAwesome
+                                name="thumbs-up"
+                                style={styles.iconPhoneAwesome}
+                              />
+                            )}
+                          </View>
+                        </View>
                       </TouchableOpacity>
-                      <TouchableOpacity>
+                      <Text>{item.data.postComments.length}</Text>
+                      <TouchableOpacity
+                        onPress={() => {
+                          navigation.navigate("Comments",{
+                            postId: item.data.postId,
+                            postComments: item.data.postComments,
+                            docId: docId
+                          });
+                        }}
+                      >
                         <FontAwesome
                           name="comment"
                           style={styles.iconPhoneAwesome}
@@ -136,8 +231,8 @@ const styles = StyleSheet.create({
   touchableOpacityStyle: {
     width: 50,
     height: 50,
-    alignItems: 'center',
-    justifyContent: 'center',
+    alignItems: "center",
+    justifyContent: "center",
     right: 30,
     bottom: 30,
   },

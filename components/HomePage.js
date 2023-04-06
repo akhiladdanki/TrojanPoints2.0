@@ -20,8 +20,10 @@ import userData from "../data/userData.json";
 import Checkbox from "expo-checkbox";
 import { AirbnbRating, Button } from "@rneui/themed";
 import { Avatar } from "@rneui/themed";
-import { ref, set } from "firebase/database";
-import { db } from "../firebase/index";
+import {db,collection,addDoc} from '../firebase/index'
+import uuid from 'react-native-uuid';
+import AsyncStorage from "@react-native-async-storage/async-storage";
+
 const styles = StyleSheet.create({
   mainContainer: {
     flex: 1,
@@ -96,12 +98,16 @@ const styles = StyleSheet.create({
   },
 });
 
-const HomePage = () => {
+const HomePage = ({navigation}) => {
+  const newId= Date.now();
+  const postId=uuid.v4();
   const [searchQuery, setSearchQuery] = useState(userData);
+  const [userUid,setUserUid]=useState()
   const [filterData, setFilterData] = useState([]);
   const [mainData, setMainData] = useState([]);
   const [rating, setRating] = useState(0);
   const [comments, setComments] = useState("");
+  const [createdAt,setCreatedAt]=useState("");
   const [isChecked, setIsChecked] = useState({
     isChecked1: false,
     isChecked2: false,
@@ -114,8 +120,21 @@ const HomePage = () => {
     isChecked9: false,
     isChecked10: false,
   });
-  const handleSubmit = () => {
-    if(!searchQuery){
+  useEffect(()=>{
+    getDataAsyn();
+  },[])
+  const getDataAsyn=async()=>{
+  try{
+    const userIdToken=await AsyncStorage.getItem("userId");
+    setUserUid(userIdToken);
+  }
+  catch(err){
+    console.log(err)
+  }
+}
+  const handleSubmit = async() => {
+    try {
+      if(!searchQuery){
         return;
     }
     if(!comments){
@@ -124,20 +143,44 @@ const HomePage = () => {
     if(!rating){
         return;
     }
-    set(ref(db, "userlist/" + searchQuery), {
+      const docRef = await addDoc(collection(db, "posts"), {
+      newId:newId,
       searchQuery: searchQuery,
       rating: rating,
       comments: comments,
-    })
-      .then(() => {
-        alert("Data Created");
-      })
-      .catch((err) => {
-        console.error("Something Went Wrong");
+      likes: [],
+      postComments: [],
+      createdAt:createdAt,
+      postId:postId,
+      userId: userUid
       });
-    setSearchQuery([]);
-    setRating(0);
+      setSearchQuery([]);
+      setComments('');
+      setIsChecked({
+        isChecked1: false,
+        isChecked2: false,
+        isChecked3: false,
+        isChecked4: false,
+        isChecked5: false,
+        isChecked6: false,
+        isChecked7: false,
+        isChecked8: false,
+        isChecked9: false,
+        isChecked10: false,
+      })
+      setRating(0);
+      navigation.navigate('Trojan Points Feed')
+      // alert("Data Saved Successfully")
+      console.log("Document written with ID: ", docRef.id);
+    } catch (e) {
+      console.error("Error adding document: ", e);
+    }
   };
+  useEffect(()=>{
+    const userPostCreated = new Date().toJSON().slice(0,10).replace(/-/g,'-');
+    const newUserCreatedPost=userPostCreated.split("-").reverse().join("-");
+    setCreatedAt(newUserCreatedPost)
+  },[])
   useEffect(() => {
     if (searchQuery) {
       handleFilter();

@@ -1,6 +1,6 @@
 import React from 'react';
 import { View, Text,Image,StyleSheet } from 'react-native';
-import { createDrawerNavigator,DrawerContentScrollView,DrawerItemList } from '@react-navigation/drawer';
+import { DrawerContentScrollView,DrawerItemList } from '@react-navigation/drawer';
 import { TouchableOpacity } from 'react-native-gesture-handler';
 import { useNavigation } from "@react-navigation/native";
 

@@ -1,7 +1,5 @@
 import React from 'react'
 import { NavigationContainer,createDrawerNavigator } from '@react-navigation/native';
-// import { } from '@react-navigation/drawer';
-
 import SignUp from '../screens/SignUp';
 import LoginPage from '../screens/LoginPage';
 import Feed from './Feed';
@@ -19,7 +17,7 @@ const SideBarNavigation = () => {
     <Drawer.Navigator  drawerContent={(props)=><CustomDrawer {...props} />} >
     <Drawer.Screen name="Login Page" component={LoginPage} options={{headerShown:false}}/>
       <Drawer.Screen name="Trojan Points Feed" component={Feed} />
-      <Drawer.Screen name="Register" component={SignUp} />
+      <Drawer.Screen name="Register" component={SignUp}  options={{headerShown:false}}/>
       <Drawer.Screen name="Award Trojan Points" component={HomePage} options={{
         // drawerItemStyle: { height: 0 }
 }}/>

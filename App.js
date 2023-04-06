@@ -13,6 +13,7 @@ import LoginPage from './screens/LoginPage';
 import SignUp from './screens/SignUp';
 import CustomDrawer from './components/CustomDrawer';
 import { AuthProvider } from './context/AuthContext';
+import CommentSection from './components/CommentSection';
 
 
 
@@ -24,6 +25,7 @@ export default function App() {
      
       <Drawer.Navigator  drawerContent={(props)=><CustomDrawer {...props} />} >
       <Drawer.Screen name="Login Page" component={LoginPage} options={{headerShown:false, drawerItemStyle: {height: 0}}}/>
+      <Drawer.Screen name="Comments" component={CommentSection} options={{headerShown:true, drawerItemStyle: {height: 0}}}/>
         <Drawer.Screen name="Trojan Points Feed" component={Feed} />
         <Drawer.Screen name="Register" component={SignUp} />
         

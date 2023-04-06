@@ -1,22 +1,19 @@
 // Import the functions you need from the SDKs you need
-import { initializeApp } from "firebase/app";
-import {getDatabase} from 'firebase/database'
-// TODO: Add SDKs for Firebase products that you want to use
-// https://firebase.google.com/docs/web/setup#available-libraries
+import { initializeApp} from "firebase/app";
+import { getFirestore,collection, addDoc,getDocs ,updateDoc,doc} from "firebase/firestore";
 
-// Your web app's Firebase configuration
 const firebaseConfig = {
-  apiKey: "AIzaSyBlvMFEaAruvpANsF-T8pPfR3XtPnldptg",
-  authDomain: "trojan-d65df.firebaseapp.com",
-  databaseURL: "https://trojan-d65df-default-rtdb.firebaseio.com",
-  projectId: "trojan-d65df",
-  storageBucket: "trojan-d65df.appspot.com",
-  messagingSenderId: "125893452520",
-  appId: "1:125893452520:web:79602087d993275c50df5d"
+  apiKey: "AIzaSyAQVMGP9Jyo63lfqVErshvggsQcHADez7Q",
+  authDomain: "tetrajon-3ffa7.firebaseapp.com",
+  projectId: "tetrajon-3ffa7",
+  storageBucket: "tetrajon-3ffa7.appspot.com",
+  messagingSenderId: "853614004127",
+  appId: "1:853614004127:web:79f529ab9f3b647e74dfaa",
+  measurementId: "G-4G2GMSS28Q"
 };
 
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
+const db=getFirestore(app);
 
-
-export const db=getDatabase(app);
+export {app,db,getFirestore,collection,addDoc,getDocs ,updateDoc,doc}
